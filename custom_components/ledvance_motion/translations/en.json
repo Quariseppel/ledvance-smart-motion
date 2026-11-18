@@ -1,0 +1,85 @@
+{
+  "title": "LEDVANCE SMART+ Motion",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect your SMART+ account",
+        "description": "Use the LEDVANCE SMART+ account that already shows this sensor on your phone. Select EU for an account registered in Germany.",
+        "data": {
+          "email": "Email address",
+          "password": "SMART+ password",
+          "region": "Account region"
+        }
+      },
+      "device": {
+        "title": "Choose a motion sensor",
+        "description": "Select the sensor by its name in SMART+. The last four characters of its device ID distinguish duplicate names. Setup verifies that your account returns a readable motion state.",
+        "data": {
+          "device_id": "Motion sensor"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "SMART+ rejected the login. Check the email address, password and account region.",
+      "email_required": "Enter the email address of your SMART+ account.",
+      "cannot_connect": "The SMART+ cloud is unreachable. Try again later.",
+      "rate_limited": "The cloud is limiting requests. Wait two minutes before retrying.",
+      "cloud_response": "The cloud returned an unexpected response. Check your account region and HASS Ledvance version.",
+      "no_motion_devices": "No identifiable motion sensor appeared. Trigger motion, check the current time in SMART+ history and submit the login again.",
+      "wrong_device": "This account does not contain the selected sensor. Check the account and region.",
+      "no_motion_state": "The device was found, but no readable motion state was returned. Trigger motion, confirm it in SMART+ history and submit the device selection again."
+    },
+    "abort": {
+      "already_configured": "This sensor is already configured.",
+      "reauth_successful": "Account login updated.",
+      "reauth_device_mismatch": "The login belongs to a different device."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Motion polling",
+        "description": "Select a mode and a polling interval. Fixed hours can span midnight. All selected shutters closed can also activate polling outside the time window. Battery is checked on its own daily schedule.",
+        "data": {
+          "active_mode": "When to check for motion",
+          "active_from": "Active from",
+          "active_until": "Active until",
+          "covers": "Shutters that block the remaining daylight",
+          "poll_seconds": "Motion polling interval"
+        }
+      }
+    },
+    "error": {
+      "same_time": "Choose different start and end times.",
+      "choose_covers": "Select at least one shutter for this mode.",
+      "invalid_interval": "Enter a whole number between 5 and 300 seconds."
+    }
+  },
+  "selector": {
+    "active_mode": {
+      "options": {
+        "always": "Always",
+        "sunset": "Sunset to sunrise",
+        "fixed_hours": "Fixed hours",
+        "covers_only": "Only when the selected shutters are closed"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery": {
+        "name": "Battery",
+        "state_attributes": {
+          "last_battery_update": {
+            "name": "Last battery check"
+          }
+        }
+      }
+    },
+    "binary_sensor": {
+      "motion": {
+        "name": "Motion"
+      }
+    }
+  }
+}

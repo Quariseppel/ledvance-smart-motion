@@ -1,0 +1,15 @@
+{
+  "domain": "ledvance_motion",
+  "name": "LEDVANCE SMART+ Motion",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": [
+    "hass_ledvance"
+  ],
+  "documentation": "https://github.com/Quariseppel/ledvance-smart-motion#readme",
+  "integration_type": "device",
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "version": "0.3.0",
+  "issue_tracker": "https://github.com/Quariseppel/ledvance-smart-motion/issues"
+}

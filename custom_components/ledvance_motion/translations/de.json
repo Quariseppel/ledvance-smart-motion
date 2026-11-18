@@ -1,0 +1,85 @@
+{
+  "title": "LEDVANCE SMART+ Motion",
+  "config": {
+    "step": {
+      "user": {
+        "title": "SMART+-Konto verbinden",
+        "description": "Verwende den Zugang zu dem LEDVANCE SMART+-Konto, in dem dein iPhone den Melder anzeigt. Für ein in Deutschland registriertes Konto wähle EU.",
+        "data": {
+          "email": "E-Mail-Adresse",
+          "password": "SMART+-Passwort",
+          "region": "Kontoregion"
+        }
+      },
+      "device": {
+        "title": "Bewegungsmelder auswählen",
+        "description": "Wähle deinen Melder anhand seines Namens in SMART+. Gleiche Gerätenamen lassen sich an den letzten vier Zeichen der Geräte-ID unterscheiden. Beim Bestätigen wird der Bewegungsstatus aus der Cloud gelesen.",
+        "data": {
+          "device_id": "Bewegungsmelder"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "SMART+ hat die Anmeldung abgelehnt. Prüfe E-Mail-Adresse, Passwort und die Region deines SMART+-Kontos.",
+      "email_required": "Gib die E-Mail-Adresse deines SMART+-Kontos ein.",
+      "cannot_connect": "Die SMART+-Cloud ist gerade nicht erreichbar. Versuche es erneut.",
+      "rate_limited": "Die Cloud begrenzt die Abfragen. Warte zwei Minuten und versuche es erneut.",
+      "cloud_response": "Die SMART+-Cloud liefert eine unerwartete Antwort. Prüfe die Kontoregion und die Version von HASS Ledvance.",
+      "no_motion_devices": "Im Konto ist kein erkennbarer Bewegungsmelder sichtbar. Löse am Melder Bewegung aus, prüfe die Uhrzeit im SMART+-Verlauf und bestätige die Anmeldung erneut.",
+      "wrong_device": "Dieser Melder ist im gewählten Konto nicht verfügbar. Prüfe Konto und Region.",
+      "no_motion_state": "Das Konto zeigt den Melder, liefert aber noch keinen lesbaren Bewegungsstatus. Geh am Melder vorbei, prüfe den SMART+-Verlauf und bestätige die Geräteauswahl erneut."
+    },
+    "abort": {
+      "already_configured": "Dieser Bewegungsmelder ist bereits eingerichtet.",
+      "reauth_successful": "Die Anmeldung wurde aktualisiert.",
+      "reauth_device_mismatch": "Die Anmeldung gehört zu einem anderen Gerät."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Bewegungsabfrage einstellen",
+        "description": "Wähle den Modus und das Abfrageintervall. Feste Uhrzeiten können über Mitternacht reichen. Sind alle ausgewählten Rollläden geschlossen, wird auch außerhalb der eingestellten Zeiten abgefragt. Der Akku wird unabhängig davon täglich aktualisiert.",
+        "data": {
+          "active_mode": "Wann soll Bewegung abgefragt werden?",
+          "active_from": "Aktiv ab",
+          "active_until": "Aktiv bis",
+          "covers": "Rollläden für zusätzliche Aktivierung",
+          "poll_seconds": "Abfrageintervall für Bewegung"
+        }
+      }
+    },
+    "error": {
+      "same_time": "Wähle unterschiedliche Uhrzeiten für Beginn und Ende.",
+      "choose_covers": "Wähle für diesen Modus mindestens einen Rollladen aus.",
+      "invalid_interval": "Gib eine ganze Zahl zwischen 5 und 300 Sekunden ein."
+    }
+  },
+  "selector": {
+    "active_mode": {
+      "options": {
+        "always": "Immer",
+        "sunset": "Sonnenuntergang bis Sonnenaufgang",
+        "fixed_hours": "Feste Uhrzeiten",
+        "covers_only": "Nur bei geschlossenen Rollläden"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery": {
+        "name": "Akku",
+        "state_attributes": {
+          "last_battery_update": {
+            "name": "Letzte Akkuabfrage"
+          }
+        }
+      }
+    },
+    "binary_sensor": {
+      "motion": {
+        "name": "Bewegung"
+      }
+    }
+  }
+}

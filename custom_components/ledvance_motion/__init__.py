@@ -1,5 +1,7 @@
 """Set up one SMART+ motion sensor and its read-only cloud connection."""
 
+from asyncio import Lock as AsyncLock
+from dataclasses import dataclass
 from datetime import timedelta
 import logging
 from threading import Lock
@@ -29,13 +31,19 @@ from .const import (
     CONF_SOURCE,
     DOMAIN,
 )
-from .schedule import MotionSchedule, poll_interval
+from .schedule import MotionSchedule, PollingPaused, poll_interval
 
 PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR]
 _LOGGER = logging.getLogger(__name__)
 
 
-class MotionCoordinator(DataUpdateCoordinator[bool | None]):
+@dataclass(frozen=True)
+class MotionState:
+    polling_active: bool
+    detected: bool | None
+
+
+class MotionCoordinator(DataUpdateCoordinator[MotionState]):
     """Poll one reported field and save rotated credentials in HA's event loop."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -49,6 +57,7 @@ class MotionCoordinator(DataUpdateCoordinator[bool | None]):
         )
         self.entry = entry
         self.closed = False
+        self._request_lock = AsyncLock()
         self._client_lock = Lock()
         self._blocked_until = 0.0
         self._schedule = MotionSchedule(hass, entry.options)
@@ -57,7 +66,7 @@ class MotionCoordinator(DataUpdateCoordinator[bool | None]):
         self._dp = entry.data[CONF_DP]
         self._source = entry.data[CONF_SOURCE]
         self.api = make_client(dict(entry.data), self._tokens_from_worker)
-        self.battery = BatteryCoordinator(hass, entry, self.read_battery)
+        self.battery = BatteryCoordinator(hass, entry, self._async_read_battery)
 
     def _tokens_from_worker(self, sid: str, refresh: str) -> None:
         self.hass.loop.call_soon_threadsafe(self._save_tokens, sid, refresh)
@@ -88,31 +97,40 @@ class MotionCoordinator(DataUpdateCoordinator[bool | None]):
                 self._blocked_until = monotonic() + CLOUD_BACKOFF_SECONDS
                 raise
 
-    def _read(self) -> bool | None:
-        return self._read_cloud(fetch_motion, self._dp, self._source)
+    async def _async_read_cloud(self, read, *args):
+        async with self._request_lock:
+            # Check again after waiting in line for the shared SMART+ session.
+            if self.closed or not self._schedule.is_active():
+                raise PollingPaused
+            return await self.hass.async_add_executor_job(self._read_cloud, read, *args)
 
-    def read_battery(self) -> int | None:
-        return self._read_cloud(fetch_battery)
+    async def _async_read_battery(self) -> int | None:
+        return await self._async_read_cloud(fetch_battery)
 
     async def _async_schedule_changed(self, _event) -> None:
-        if not self.closed and self._schedule.is_active() != self._allowed:
+        if self.closed:
+            return
+        active = self._schedule.is_active()
+        if active != self._allowed:
             await self.async_request_refresh()
+        if active:
+            await self.battery.async_request_refresh()
 
     @callback
     def async_track_schedule(self) -> None:
         for unsubscribe in self._schedule.async_track_changes(self._async_schedule_changed):
             self.entry.async_on_unload(unsubscribe)
 
-    async def _async_update_data(self) -> bool | None:
+    async def _async_update_data(self) -> MotionState:
         self._allowed = self._schedule.is_active()
         if not self._allowed:
-            return None
+            return MotionState(polling_active=False, detected=False)
 
         try:
-            value = await self.hass.async_add_executor_job(self._read)
-            # The time window or a shutter may have changed during the cloud request.
-            self._allowed = self._schedule.is_active()
-            return value if self._allowed else None
+            value = await self._async_read_cloud(fetch_motion, self._dp, self._source)
+        except PollingPaused:
+            self._allowed = False
+            return MotionState(polling_active=False, detected=False)
         except AUTH_ERRORS:
             raise ConfigEntryAuthFailed("SMART+ login required") from None
         except TooManyRequests:
@@ -121,6 +139,10 @@ class MotionCoordinator(DataUpdateCoordinator[bool | None]):
             raise UpdateFailed("SMART+ cloud unreachable") from None
         except RESPONSE_ERRORS:
             raise UpdateFailed("SMART+ returned an unreadable device response") from None
+
+        # The time window or a shutter may have changed during the cloud request.
+        self._allowed = self._schedule.is_active()
+        return MotionState(polling_active=self._allowed, detected=value if self._allowed else False)
 
     def _close(self) -> None:
         # A cancelled executor job can still be reading on a worker thread.

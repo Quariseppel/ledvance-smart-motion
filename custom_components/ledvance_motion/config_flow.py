@@ -166,7 +166,7 @@ class MotionConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class MotionOptionsFlow(config_entries.OptionsFlowWithReload):
-    """Configure when the cloud is polled."""
+    """Configure the operating hours for SMART+ cloud requests."""
 
     async def async_step_init(self, user_input=None):
         options = self.config_entry.options

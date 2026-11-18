@@ -39,7 +39,7 @@
     "step": {
       "init": {
         "title": "Motion polling",
-        "description": "Select a mode and a polling interval. Fixed hours can span midnight. All selected shutters closed can also activate polling outside the time window. Battery is checked on its own daily schedule.",
+        "description": "Select the operating hours and polling interval. Fixed hours can span midnight. Closing all selected shutters can activate polling outside the time window. Both motion and battery cloud requests follow these operating hours.",
         "data": {
           "active_mode": "When to check for motion",
           "active_from": "Active from",
@@ -78,7 +78,12 @@
     },
     "binary_sensor": {
       "motion": {
-        "name": "Motion"
+        "name": "Motion",
+        "state_attributes": {
+          "polling_active": {
+            "name": "Cloud polling active"
+          }
+        }
       }
     }
   }

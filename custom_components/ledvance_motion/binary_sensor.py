@@ -35,4 +35,8 @@ class SmartMotionSensor(CoordinatorEntity[MotionCoordinator], BinarySensorEntity
 
     @property
     def is_on(self) -> bool | None:
-        return self.coordinator.data
+        return self.coordinator.data.detected
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        return {"polling_active": self.coordinator.data.polling_active}

@@ -138,6 +138,8 @@ def fetch_battery(api: TuyaAPI, device_id: str) -> int | None:
     device = api._device_info(device_id)
     keys = _battery_keys(device.schema or [])
     level = _read_battery_percent(device.dps or {}, keys)
-    if level is not None:
-        return level
-    return _read_battery_percent(api.get_dps(device_id), keys)
+    if level is None:
+        level = _read_battery_percent(api.get_dps(device_id), keys)
+    if level == 0 and not device.is_online:
+        return None
+    return level

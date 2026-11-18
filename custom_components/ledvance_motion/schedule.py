@@ -31,6 +31,10 @@ from .const import (
 )
 
 
+class PollingPaused(Exception):
+    """The operating schedule currently forbids a cloud request."""
+
+
 def active_mode(options: Mapping[str, Any]) -> str:
     """Read the current mode or the setting stored in version 0.2."""
     legacy = MODE_SUNSET if options.get(CONF_ONLY_AFTER_SUNSET) else MODE_ALWAYS

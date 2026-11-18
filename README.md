@@ -18,9 +18,9 @@ Home-Assistant-Integration für LEDVANCE SMART+ WLAN-Bewegungsmelder, entwickelt
 - **Abfrageintervall** – Bewegungsstatus alle 5 bis 300 Sekunden prüfen. Im Standardmodus sind 15 Sekunden eingestellt.
 - **Zeitplan** – Immer abfragen, lokale Sonnenzeiten verwenden oder feste Uhrzeiten eingeben. Feste Zeitfenster können über Mitternacht reichen.
 - **Rollläden** – Sind alle ausgewählten Rollläden geschlossen, kann die Abfrage auch außerhalb des Zeitfensters laufen. Der Modus „Nur bei geschlossenen Rollläden“ nutzt allein diesen Auslöser.
-- **Akku** – Home Assistant ruft alle 24 Stunden den letzten in SMART+ verfügbaren Prozentwert ab. Die Entität zeigt auch den Zeitpunkt der letzten erfolgreichen Abfrage eines Prozentwerts.
+- **Akku** – Home Assistant prüft den gemeldeten Prozentwert alle 24 Stunden. Fällige Akkuabfragen in der Pause werden im nächsten aktiven Zeitraum nachgeholt. Einen einzelnen Wert von 0 % prüft die Integration nach zwei Minuten erneut. Die Entität zeigt auch den Zeitpunkt der letzten erfolgreichen Akkuabfrage.
 
-Bei einer pausierten Bewegungsabfrage zeigt die Bewegungsentität **Unbekannt**. Die Erkennung in Home Assistant hängt von der Übertragung zur Cloud und vom gewählten Intervall ab. Kurze Bewegungssignale können zwischen zwei Abfragen liegen.
+Während der Pause starten keine Bewegungs- oder Akkuabfragen an SMART+. Die Bewegungsentität zeigt **Keine Bewegung** und das Attribut **Cloud-Abfrage aktiv** steht auf **Aus**. Die Erkennung in Home Assistant hängt von der Übertragung zur Cloud und vom gewählten Intervall ab. Kurze Bewegungssignale können zwischen zwei Abfragen liegen.
 
 ## Updates
 
